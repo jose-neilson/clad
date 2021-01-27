@@ -3,26 +3,49 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="css/materialize.min.css" />
-    <script src="js/materialize.min.js"></script>
-
+    <link rel="stylesheet" href="css/index.css" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <!-- <script src="js/materialize.min.js"></script> -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;1,300;1,400;1,500&display=swap" rel="stylesheet" />
     <title>CLAD</title>
   </head>
   <body>
-    <table>
-      <thead>
-        <tr>
-          <th>Id</th>
-          <th>Nome</th>
-          <th>Telefone</th>
-          <th>Email</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody id="lista"></tbody>
-    </table>
-    <button id="cadastro"class="waves-effect waves-light btn">Cadastro</a>
-
+    <div class="content">
+      <div class="row-up">
+        <div class="search">
+          <label for="id">Pesquisar</label>
+          <div class="search-button">
+            <input id="id" type="text" />
+            <button class="btn blue icon" id="find"><i class="material-icons">search</i></button>
+          </div>
+        </div>
+        <div class="btn-register">
+          <button class="btn" id="register"><span>Novo documento de saida</span><i class="material-icons">add</i></button>
+        </div>
+      </div>
+      <div class="row-table">
+        <div class="table-container">
+          <div class="table">
+            <div class="table-head" id="list_index">
+              <ul>
+                <li class="col1 center">Id</li>
+                <li class="col3 left">nome</li>
+                <li class="col1 center">cidade</li>
+                <li class="col1 center">estado</li>
+                <li class="col2 left">endereço</li>
+                <li class="col2 center">cpf</li>
+                <li class="col1"></li>
+              </ul>
+            </div>
+            <div class="table-body" id="list"></div>
+          </div>
+        </div>
+      </div>
+      <div class="row-pagination">
+        <ul id="button_pages"></ul>
+      </div>
+    </div>
     <script src="js/renderer.js"></script>
   </body>
 </html>

@@ -1,11 +1,12 @@
 let cancelar = document.querySelector("#cancelar");
 let salvar = document.querySelector("#salvar");
 const { remote, ipcRenderer } = require("electron");
+const dialog = remote.dialog;
 let modal = remote.getCurrentWindow();
 let window_id_user = modal.webContents.browserWindowOptions.id_user;
 
 if (window_id_user) {
-  findUser(window_id_user);
+  findCliente(window_id_user);
 }
 
 cancelar.addEventListener("click", () => {
@@ -14,51 +15,67 @@ cancelar.addEventListener("click", () => {
 
 salvar.addEventListener("click", () => {
   if (window_id_user) {
-    updateUsers(window_id_user);
+    updateCliente(window_id_user);
   } else {
-    createUsers();
+    createCliente();
   }
 });
 
-async function createUsers() {
+async function createCliente() {
   try {
-    let name_user = document.querySelector("#name").value;
-    let telephone = document.querySelector("#telephone").value;
-    let email = document.querySelector("#email").value;
-    const result = await ipcRenderer.invoke("createUsers", name_user, telephone, email);
+    let nome = document.querySelector("#nome").value;
+    let cidade = document.querySelector("#cidade").value;
+    let estado = document.querySelector("#estado").value;
+    let endereço = document.querySelector("#endereço").value;
+    let cpf = document.querySelector("#cpf").value;
+    const result = await ipcRenderer.invoke("createCliente", nome, cidade, estado, endereço, cpf);
     console.log(result);
+    dialog.showMessageBox({
+      buttons: ["Ok"],
+      message: "Usuário atualizado com sucesso",
+    });
+    ipcRenderer.send("updateTableModal", {});
     modal.close();
-    alert("Usuário cadastrado com sucesso");
   } catch (err) {
     console.log(err);
   }
 }
 
-async function updateUsers(id_user) {
+async function updateCliente(id_user) {
   try {
     console.log(id_user);
-    let name_user = document.querySelector("#name").value;
-    let telephone = document.querySelector("#telephone").value;
-    let email = document.querySelector("#email").value;
-    const cadastrar = await ipcRenderer.invoke("updateUsers", id_user, name_user, telephone, email);
-    console.log(cadastrar);
+    let nome = document.querySelector("#nome").value;
+    let cidade = document.querySelector("#cidade").value;
+    let estado = document.querySelector("#estado").value;
+    let endereço = document.querySelector("#endereço").value;
+    let cpf = document.querySelector("#cpf").value;
+    const result = await ipcRenderer.invoke("updateCliente", id_user, nome, cidade, estado, endereço, cpf);
+    console.log(result);
+    dialog.showMessageBox({
+      buttons: ["Ok"],
+      message: "Usuário atualizado com sucesso",
+    });
+    ipcRenderer.send("updateTableModal", {});
     modal.close();
-    alert("Usuário atualizado com sucesso");
   } catch (err) {
     console.log(err);
   }
 }
 
-async function findUser(id_user) {
+async function findCliente(id_user) {
   try {
-    let name_user = document.querySelector("#name");
-    let telephone = document.querySelector("#telephone");
-    let email = document.querySelector("#email");
-    const result = await ipcRenderer.invoke("findUser", id_user);
+    let nome = document.querySelector("#nome");
+    let cidade = document.querySelector("#cidade");
+    let estado = document.querySelector("#estado");
+    let endereço = document.querySelector("#endereço");
+    let cpf = document.querySelector("#cpf");
+    const result = await ipcRenderer.invoke("findCliente", id_user);
     console.log(result);
-    name_user.value = result.name;
-    telephone.value = result.telephone;
-    email.value = result.email;
+    nome.value = result.nome;
+    cidade.value = result.cidade;
+    estado.value = result.estado;
+    endereço.value = result.endereço;
+    cpf.value = result.cpf;
   } catch (err) {
     console.log(err);
   }

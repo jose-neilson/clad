@@ -1,0 +1,242 @@
+* {
+  font-family: "Roboto", sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  height: 100%;
+  background-color: #e6e6e6;
+  padding: 15px;
+}
+
+ul {
+  list-style: none;
+}
+
+.content {
+  height: 100%;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 0 4px rgb(204, 204, 204);
+  padding: 15px;
+}
+
+.row-up {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
+}
+
+/* Estilo do campo pesquisar */
+
+.search input {
+  border-radius: 5px;
+  outline: none;
+  line-height: 25px;
+  font-size: 20px;
+  border: 0.6px rgb(197, 197, 197) solid;
+}
+
+.search label {
+  text-transform: uppercase;
+  font-weight: bold;
+  margin-bottom: 3px;
+  font-size: 12px;
+  display: block;
+}
+
+.search-button {
+  display: flex;
+}
+
+/* Estilo dos botões */
+
+.btn {
+  text-decoration: none;
+  color: #fff;
+  background-color: rgb(96, 93, 255);
+  font-size: 14px;
+  text-align: center;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  border: none;
+  border-radius: 2px;
+  display: inline-block;
+  height: 36px;
+  padding: 0 16px;
+  outline: 0;
+  text-transform: uppercase;
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
+}
+
+.red {
+  background-color: rgba(255, 45, 45, 0.815);
+}
+
+.orange {
+  background-color: rgb(255, 147, 24);
+}
+
+.btn.icon {
+  margin-left: 15px;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn:hover {
+  background-color: rgb(141, 139, 245);
+  transition: 0.6s ease-out;
+}
+
+.btn:active {
+  background-color: rgb(91, 88, 245);
+  transition: 0.1s ease-in-out;
+}
+
+/* Estilo do botão de cadastro */
+
+#register {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#register span {
+  line-height: normal;
+  margin-right: 6px;
+}
+
+#register i {
+  margin-left: 6px;
+}
+
+/* Estilo da tabela */
+
+.table {
+  width: 100%;
+  display: table;
+}
+
+.row-table {
+  position: relative;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.table-head ul,
+.table-body ul {
+  list-style-type: none;
+  display: flex;
+}
+
+.table-head ul li,
+.table-body ul li {
+  padding: 10px 10px;
+  text-align: center;
+  vertical-align: middle;
+  border-radius: 2px;
+  min-width: 100px;
+  height: 25px;
+}
+
+.table-head {
+  color: rgba(0, 0, 0, 0.747);
+  text-transform: uppercase;
+  font-size: 15px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.table-body {
+  color: rgba(0, 0, 0, 0.815);
+  text-transform: uppercase;
+  font-size: 17px;
+}
+
+.table-body > ul:nth-child(even) li {
+  background-color: #f0f0f0;
+}
+
+.table-body > ul:nth-child(odd) li {
+  background-color: white;
+}
+
+li.col1 {
+  width: 100px;
+}
+li.col2 {
+  width: 200px;
+}
+li.col3 {
+  width: 300px;
+}
+
+li.center {
+  text-align: center;
+}
+li.left {
+  text-align: left;
+}
+li.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Estilo dos botões de ação */
+
+.menu-action {
+  position: absolute;
+  z-index: 2;
+  right: 0;
+  background: #fff;
+  box-shadow: -1px 0 2px 0 rgb(0 0 0 / 25%);
+}
+
+.action {
+  border: none;
+  outline: none;
+  background-color: inherit;
+  cursor: pointer;
+}
+
+.row-pagination ul {
+  display: flex;
+  padding: 15px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.row-pagination ul li {
+  width: 30px;
+  height: 30px;
+  margin: 6px;
+}
+
+.page-key {
+  width: 100%;
+  height: 100%;
+  outline: none;
+  border: none;
+  border-radius: 3px;
+  font-size: 100%;
+  line-height: 10px;
+  background-color: #ffffff8f;
+  color: rgba(44, 44, 44, 0.623);
+}
+
+.page-key:hover {
+  background-color: rgb(204, 204, 204);
+}
+
+.page-key:active {
+  background-color: rgb(165, 165, 165);
+}
+
+.page-key.active {
+  background-color: rgb(91, 88, 245);
+  color: #fff;
+}

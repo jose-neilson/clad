@@ -1,53 +1,65 @@
+require("dotenv/config");
 const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 const axios = require("axios").default;
 const BASE_URL = "http://localhost:3000";
+const ROUTE = process.env.ROUTE;
 
+console.log(process.env.ENVIRONMENT);
+
+let winPrincipal;
 function createWindow() {
-  const win = new BrowserWindow({
-    width: 800,
-    height: 600,
+  winPrincipal = new BrowserWindow({
+    width: 1200,
+    height: 800,
+    show: false,
     webPreferences: {
       nodeIntegration: true,
       enableRemoteModule: true,
     },
   });
-  win.loadFile(path.join(__dirname, "src/index.html"));
+  winPrincipal.maximize();
+  winPrincipal.loadFile(path.join(__dirname, "src/index.html"));
+  winPrincipal.show();
+  if (process.env.ENVIRONMENT == "development") {
+    console.log("Entrou no if de development");
+    winPrincipal.webContents.toggleDevTools();
+  }
 }
 
 app.whenReady().then(createWindow);
 
-ipcMain.handle("showUsers", async (event, args) => {
-  const result = await axios.get(`${BASE_URL}/users`);
+// Funções de crud
+
+ipcMain.handle("showClientes", async (event, params) => {
+  const result = await axios.get(`${BASE_URL}${ROUTE}`, { params });
   return result.data;
 });
 
-ipcMain.handle("findUser", async (event, id_user) => {
-  const result = await axios.get(`${BASE_URL}/users/${id_user}`);
+ipcMain.handle("findCliente", async (event, id) => {
+  const result = await axios.get(`${BASE_URL}${ROUTE}${id}`);
   return result.data;
 });
 
-ipcMain.handle("createUsers", async (event, name_user, telephone, email) => {
-  const result = await axios.post(`${BASE_URL}/users`, {
-    name: name_user,
-    telephone: telephone,
-    email: email,
-  });
+ipcMain.handle("createCliente", async (event, nome, cidade, estado, endereço, cpf) => {
+  const result = await axios.post(`${BASE_URL}${ROUTE}`, { nome, cidade, estado, endereço, cpf });
   return result.data;
 });
 
-ipcMain.handle("updateUsers", async (event, id_user, name_user, telephone, email) => {
-  const result = await axios.put(`${BASE_URL}/users/${id_user}`, {
-    name: name_user,
-    telephone: telephone,
-    email: email,
-  });
+ipcMain.handle("updateCliente", async (event, id_user, nome, cidade, estado, endereço, cpf) => {
+  const result = await axios.put(`${BASE_URL}${ROUTE}${id_user}`, { nome, cidade, estado, endereço, cpf });
   return result.data;
 });
 
-ipcMain.handle("deleteUsers", async (event, id_user) => {
-  const result = await axios.delete(`${BASE_URL}/users/${id_user}`);
+ipcMain.handle("deleteCliente", async (event, id) => {
+  const result = await axios.delete(`${BASE_URL}${ROUTE}${id}`);
   return result.data;
+});
+
+// Função de atualizar tabela
+
+ipcMain.on("updateTableModal", (event, args) => {
+  winPrincipal.webContents.send("updateTable", args);
 });
 
 // ipcMain.handle("createModal", async (event, id) => {
@@ -69,17 +81,22 @@ ipcMain.handle("deleteUsers", async (event, id_user) => {
 ipcMain.handle("createModal", async (event, id) => {
   let win = new BrowserWindow({
     width: 800,
-    height: 500,
+    height: 400,
+    skipTaskbar: true,
     frame: false,
+    useContentSize: true,
+    parent: winPrincipal,
+    modal: true,
     webPreferences: {
       nodeIntegration: true,
       enableRemoteModule: true,
-      contextIsolation: true,
     },
     id_user: id,
   });
-  win.setBackgroundColor("#808080");
   var theUrl = "file://" + __dirname + "/src/modal.html";
   win.loadURL(theUrl);
   console.log(id);
+  if (process.env.ENVIRONMENT == "development") {
+    win.webContents.openDevTools();
+  }
 });
