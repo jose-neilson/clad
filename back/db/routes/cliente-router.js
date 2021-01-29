@@ -2,9 +2,9 @@ const express = require("express");
 const router = express.Router();
 const ClienteController = require("../controllers/ClienteController");
 
-router.get("/clientes/", ClienteController.show);
+router.get("/clientes/", ClienteController.index);
 
-router.get("/clientes/:id", ClienteController.find);
+router.get("/clientes/:id", ClienteController.show);
 
 router.post("/clientes/", ClienteController.store);
 

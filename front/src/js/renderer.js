@@ -1,68 +1,67 @@
-const limit = 4;
+const limit = 10;
 const { ipcRenderer, remote } = require("electron");
 const $ = require("jquery");
 const dialog = remote.dialog;
 let page_num;
+let chave;
+let value;
+let ativo = $(".tab-active").attr("data-active");
 
 $(function () {
-  showClientes();
-  showPages();
+  chave = $("#selection option:selected").val();
+  value = $("#search_value").val();
+  searchValues(chave, value, 1, ativo);
 });
 
-async function findCliente(id) {
-  const element = await ipcRenderer.invoke("findCliente", id);
-  console.log(element);
+$(".btn-tab").on("click", (event) => {
+  $(".btn-tab").removeClass("active");
+  $(event.currentTarget).addClass("active");
+  $(event.currentTarget).addClass("tab-active");
+  ativo = $(event.currentTarget).attr("data-active");
+  chave = $("#selection option:selected").val();
+  value = $("#search_value").val();
+  searchValues(chave, value, 1, ativo);
+});
 
-  let html = `
-    <ul>
-      <li class="col1 center">${element.id}</li>
-      <li class="col3 left">  ${element.nome}</li>
-      <li class="col1 center">${element.cidade}</li>
-      <li class="col2 center">${element.estado}</li>
-      <li class="col2 left">${element.endereço}</li>
-      <li class="col2 center">${element.cpf}</li>
-      <li class='menu-action'>
-        <button class="action"><i class="material-icons">visibility</i></button>
-        <button onclick='clickEdit(${element.id})' class="action"><i class="material-icons">edit</i></button>
-        <button onclick='clickDelete(${element.id})'class="action"><i class="material-icons">delete</i></button>
-      </li>
-    </ul>
-  `;
-  console.log(html);
-  $("#list").html(html);
+// Função de buscar os dados no banco
+
+async function searchValues(chave, value, pagina, ativo) {
+  let params = {
+    chave,
+    value,
+    pagina,
+    limit,
+    ativo,
+  };
+  const result = await ipcRenderer.invoke("indexClientes", params);
+  indexClientes(result.rows);
+  showPages(result.count, pagina);
 }
 
-// *
+// Função de fazer a paginação
 
-async function showPages() {
-  const result = await ipcRenderer.invoke("showClientes", {});
-
-  let page_rows = result.count;
-  page_num = Math.ceil(page_rows / limit);
+function showPages(count, pagina) {
   let pages = "";
-  pages += `<li><button id="navegation-previous" class="action page-key"><i class="material-icons">keyboard_arrow_left</i></button></li>`;
-  for (let index = 1; index <= page_num; index++) {
-    pages += `<li><button id="${index}" class="page-key page-number" data-index="${index}">${index}</button></li>`;
-  }
-  pages += `<li><button id="navegation-next" class="action page-key"><i class="material-icons">keyboard_arrow_right</i></button></li>`;
+  page_num = Math.ceil(count / limit);
 
-  $("#button_pages").html(pages);
-  $(`#1`).addClass("active");
+  for (let index = 1; index <= page_num; index++) {
+    pages += `<button id="num_pagination${index}" class="page-key page-number" data-index="${index}">${index}</button>`;
+  }
+
+  $("#pagination-numbers").html(pages);
+  $(".page-number").removeClass("active");
+  $(".page-number").removeClass("actual-page");
+  $(`#num_pagination${pagina}`).addClass("active");
+  $(`#num_pagination${pagina}`).addClass("actual-page");
 }
 
-// Mostrar os clientes na tabela
+// Função de mostrar os dados na tabela
 
-async function showClientes(offset) {
+function indexClientes(result) {
   try {
-    var params = {
-      offset: offset,
-      limit: limit,
-    };
-    const result = await ipcRenderer.invoke("showClientes", params);
-    console.log(result);
     let html = "";
-    for (let index = 0; index < result.rows.length; index++) {
-      const element = result.rows[index];
+    for (let index = 0; index < result.length; index++) {
+      const element = result[index];
       html += `
         <ul>
           <li class="col1 center">${element.id}</li>
@@ -73,8 +72,8 @@ async function showClientes(offset) {
           <li class="col2 center">${element.cpf}</li>
           <li class='menu-action'>
             <button class="action"><i class="material-icons">visibility</i></button>
-            <button onclick='clickEdit(${element.id})' class="action"><i class="material-icons">edit</i></button>
-            <button onclick='clickDelete(${element.id})'class="action"><i class="material-icons">delete</i></button>
+            <button data-id="${element.id}" class="action edit"><i class="material-icons">edit</i></button>
+            <button data-id="${element.id}" class="action delete"><i class="material-icons">delete</i></button>
           </li>
         </ul>`;
     }
@@ -84,30 +83,22 @@ async function showClientes(offset) {
   }
 }
 
-//Atualizar a tabela
-
-ipcRenderer.on("updateTable", (event, args) => {
-  console.log("entrou no updateTable");
-  showClientes();
-  showPages();
-});
-
 //Botões de editar e excluir
 
-function clickEdit(id) {
+$(document).on("click", ".edit", (event) => {
+  let id = $(event.currentTarget).attr("data-id");
   ipcRenderer.invoke("createModal", id);
-}
+});
 
-function clickDelete(id) {
+$(document).on("click", ".delete", (event) => {
+  let id = $(event.currentTarget).attr("data-id");
   let excluir = dialog.showMessageBoxSync({
     title: "Excluir",
     buttons: ["Sim", "Não"],
     message: "Deseja excluir esse cliente?",
   });
-  console.log(excluir);
   if (excluir == 0) {
     const result = ipcRenderer.invoke("deleteCliente", id);
-    console.log(result);
     dialog.showMessageBox({
       title: "Excluir",
       buttons: ["Ok"],
@@ -115,17 +106,13 @@ function clickDelete(id) {
     });
     ipcRenderer.send("updateTableModal", {});
   }
-}
+});
 
-// Função de clicar na pagina
+// Função de clicar no número da pagina
 
 $(document).on("click", ".page-number", (event) => {
   let index = $(event.currentTarget).attr("data-index");
-  $(".page-number").removeClass("active");
-  $(`#${index}`).addClass("active");
-  let offset = (index - 1) * limit;
-  console.log(offset);
-  showClientes(offset);
+  searchValues(chave, value, index, ativo);
 });
 
 // Criar modal
@@ -137,43 +124,46 @@ $("#register").on("click", () => {
 // Botão pesquisar
 
 $("#find").on("click", () => {
-  let id = $("#id").val();
-  console.log(id);
-  if (id) {
-    findCliente(id);
-  } else {
-    showClientes();
-    showPages();
-  }
+  chave = $("#selection option:selected").val();
+  value = $("#search_value").val();
+  searchValues(chave, value, 1, ativo);
 });
 
 // Botões de navegação
 
 $(document).on("click", "#navegation-previous", (event) => {
-  let actualPage = parseInt($(".active").attr("data-index"));
+  let actualPage = parseInt($(".actual-page").attr("data-index"));
   let index = actualPage - 1;
   if (index > 0) {
-    console.log(`Entrou no if ${index}`);
-    $(".page-number").removeClass("active");
-    $(`#${index}`).addClass("active");
-    let offset = (index - 1) * limit;
-    showClientes(offset);
+    chave = $("#selection option:selected").val();
+    value = $("#search_value").val();
+    searchValues(chave, value, index, ativo);
   } else {
     index = actualPage;
   }
 });
 
 $(document).on("click", "#navegation-next", (event) => {
-  let actualPage = parseInt($(".active").attr("data-index"));
+  let actualPage = parseInt($(".actual-page").attr("data-index"));
+  let num_pages = $(".page-number").length;
+  console.log(num_pages);
+  console.log(actualPage);
   let index = actualPage + 1;
-  if (index <= page_num) {
-    console.log(page_num);
-    console.log(`Entrou no if ${index}`);
-    $(".page-number").removeClass("active");
-    $(`#${index}`).addClass("active");
-    let offset = (index - 1) * limit;
-    showClientes(offset);
+  if (index <= num_pages) {
+    chave = $("#selection option:selected").val();
+    value = $("#search_value").val();
+    searchValues(chave, value, index, ativo);
   } else {
     index = actualPage;
   }
 });
+
+//Atualizar a tabela
+
+ipcRenderer.on("updateTable", (event, args) => {
+  chave = $("#selection option:selected").val();
+  value = $("#search_value").val();
+  searchValues(chave, value, 1, ativo);
+});
+
+// Botões de ativo e desativo

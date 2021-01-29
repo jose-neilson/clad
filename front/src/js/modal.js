@@ -1,19 +1,20 @@
-let cancelar = document.querySelector("#cancelar");
-let salvar = document.querySelector("#salvar");
 const { remote, ipcRenderer } = require("electron");
 const dialog = remote.dialog;
+const $ = require("jquery");
+
 let modal = remote.getCurrentWindow();
 let window_id_user = modal.webContents.browserWindowOptions.id_user;
 
 if (window_id_user) {
-  findCliente(window_id_user);
+  console.log(window_id_user);
+  showCliente(window_id_user);
 }
 
-cancelar.addEventListener("click", () => {
+$("#cancelar").on("click", () => {
   modal.close();
 });
 
-salvar.addEventListener("click", () => {
+$("#salvar").on("click", () => {
   if (window_id_user) {
     updateCliente(window_id_user);
   } else {
@@ -23,16 +24,24 @@ salvar.addEventListener("click", () => {
 
 async function createCliente() {
   try {
-    let nome = document.querySelector("#nome").value;
-    let cidade = document.querySelector("#cidade").value;
-    let estado = document.querySelector("#estado").value;
-    let endereço = document.querySelector("#endereço").value;
-    let cpf = document.querySelector("#cpf").value;
-    const result = await ipcRenderer.invoke("createCliente", nome, cidade, estado, endereço, cpf);
-    console.log(result);
+    let nome = $("#nome").val();
+    let cidade = $("#cidade").val();
+    let estado = $("#estado").val();
+    let endereço = $("#endereço").val();
+    let cpf = $("#cpf").val();
+    let ativo = $("#ativo").val();
+    var data = {
+      nome,
+      cidade,
+      estado,
+      endereço,
+      cpf,
+      ativo,
+    };
+    const result = await ipcRenderer.invoke("createCliente", data);
     dialog.showMessageBox({
       buttons: ["Ok"],
-      message: "Usuário atualizado com sucesso",
+      message: "Usuário criado com sucesso",
     });
     ipcRenderer.send("updateTableModal", {});
     modal.close();
@@ -43,14 +52,21 @@ async function createCliente() {
 
 async function updateCliente(id_user) {
   try {
-    console.log(id_user);
-    let nome = document.querySelector("#nome").value;
-    let cidade = document.querySelector("#cidade").value;
-    let estado = document.querySelector("#estado").value;
-    let endereço = document.querySelector("#endereço").value;
-    let cpf = document.querySelector("#cpf").value;
-    const result = await ipcRenderer.invoke("updateCliente", id_user, nome, cidade, estado, endereço, cpf);
-    console.log(result);
+    let nome = $("#nome").val();
+    let cidade = $("#cidade").val();
+    let estado = $("#estado").val();
+    let endereço = $("#endereço").val();
+    let cpf = $("#cpf").val();
+    let ativo = $("#ativo").val();
+    var data = {
+      nome,
+      cidade,
+      estado,
+      endereço,
+      cpf,
+      ativo,
+    };
+    const result = await ipcRenderer.invoke("updateCliente", parseInt(id_user), data);
     dialog.showMessageBox({
       buttons: ["Ok"],
       message: "Usuário atualizado com sucesso",
@@ -62,20 +78,15 @@ async function updateCliente(id_user) {
   }
 }
 
-async function findCliente(id_user) {
+async function showCliente(id_user) {
   try {
-    let nome = document.querySelector("#nome");
-    let cidade = document.querySelector("#cidade");
-    let estado = document.querySelector("#estado");
-    let endereço = document.querySelector("#endereço");
-    let cpf = document.querySelector("#cpf");
-    const result = await ipcRenderer.invoke("findCliente", id_user);
-    console.log(result);
-    nome.value = result.nome;
-    cidade.value = result.cidade;
-    estado.value = result.estado;
-    endereço.value = result.endereço;
-    cpf.value = result.cpf;
+    const result = await ipcRenderer.invoke("showCliente", id_user);
+    $("#nome").val(result.nome);
+    $("#cidade").val(result.cidade);
+    $("#estado").val(result.estado);
+    $("#endereço").val(result.endereço);
+    $("#cpf").val(result.cpf);
+    $("#ativo").val(`${result.ativo}`);
   } catch (err) {
     console.log(err);
   }

@@ -5,24 +5,23 @@ const axios = require("axios").default;
 const BASE_URL = "http://localhost:3000";
 const ROUTE = process.env.ROUTE;
 
-console.log(process.env.ENVIRONMENT);
-
 let winPrincipal;
+
 function createWindow() {
   winPrincipal = new BrowserWindow({
     width: 1200,
     height: 800,
     show: false,
+    frame: false,
     webPreferences: {
       nodeIntegration: true,
       enableRemoteModule: true,
     },
   });
-  winPrincipal.maximize();
+  // winPrincipal.maximize();
   winPrincipal.loadFile(path.join(__dirname, "src/index.html"));
   winPrincipal.show();
   if (process.env.ENVIRONMENT == "development") {
-    console.log("Entrou no if de development");
     winPrincipal.webContents.toggleDevTools();
   }
 }
@@ -31,23 +30,23 @@ app.whenReady().then(createWindow);
 
 // Funções de crud
 
-ipcMain.handle("showClientes", async (event, params) => {
+ipcMain.handle("indexClientes", async (event, params) => {
   const result = await axios.get(`${BASE_URL}${ROUTE}`, { params });
   return result.data;
 });
 
-ipcMain.handle("findCliente", async (event, id) => {
+ipcMain.handle("showCliente", async (event, id) => {
   const result = await axios.get(`${BASE_URL}${ROUTE}${id}`);
   return result.data;
 });
 
-ipcMain.handle("createCliente", async (event, nome, cidade, estado, endereço, cpf) => {
-  const result = await axios.post(`${BASE_URL}${ROUTE}`, { nome, cidade, estado, endereço, cpf });
+ipcMain.handle("createCliente", async (event, data) => {
+  const result = await axios.post(`${BASE_URL}${ROUTE}`, { data });
   return result.data;
 });
 
-ipcMain.handle("updateCliente", async (event, id_user, nome, cidade, estado, endereço, cpf) => {
-  const result = await axios.put(`${BASE_URL}${ROUTE}${id_user}`, { nome, cidade, estado, endereço, cpf });
+ipcMain.handle("updateCliente", async (event, id_user, data) => {
+  const result = await axios.put(`${BASE_URL}${ROUTE}${id_user}`, { data });
   return result.data;
 });
 
@@ -80,13 +79,12 @@ ipcMain.on("updateTableModal", (event, args) => {
 
 ipcMain.handle("createModal", async (event, id) => {
   let win = new BrowserWindow({
-    width: 800,
-    height: 400,
-    skipTaskbar: true,
-    frame: false,
-    useContentSize: true,
+    // width: 800,
+    // height: 400,
     parent: winPrincipal,
     modal: true,
+    show: false,
+    frame: false,
     webPreferences: {
       nodeIntegration: true,
       enableRemoteModule: true,
@@ -95,8 +93,9 @@ ipcMain.handle("createModal", async (event, id) => {
   });
   var theUrl = "file://" + __dirname + "/src/modal.html";
   win.loadURL(theUrl);
-  console.log(id);
   if (process.env.ENVIRONMENT == "development") {
     win.webContents.openDevTools();
   }
+  win.show();
+  win.maximize();
 });

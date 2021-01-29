@@ -11,6 +11,7 @@ Cliente.init(
     estado: DataTypes.STRING,
     endereço: DataTypes.STRING,
     cpf: DataTypes.STRING,
+    ativo: DataTypes.BOOLEAN,
   },
   {
     sequelize,

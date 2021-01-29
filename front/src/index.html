@@ -14,9 +14,18 @@
     <div class="content">
       <div class="row-up">
         <div class="search">
-          <label for="id">Pesquisar</label>
+          <div class="search-selection">
+            <label>Pesquisar</label>
+            <select class="" id="selection">
+              <option value="nome">Nome</option>
+              <option value="cidade">Cidade</option>
+              <option value="estado">Estado</option>
+              <option value="endereço">Endereço</option>
+              <option value="cpf">CPF</option>
+            </select>
+          </div>
           <div class="search-button">
-            <input id="id" type="text" />
+            <input id="search_value" type="text" />
             <button class="btn blue icon" id="find"><i class="material-icons">search</i></button>
           </div>
         </div>
@@ -25,6 +34,48 @@
         </div>
       </div>
       <div class="row-table">
+        <div class="row-tab">
+          <button data-active="true" class="btn-tab tab-active active">Ativos</button>
+          <button data-active="false" class="btn-tab">Desativos</button>
+        </div>
+        <div class="row-up">
+          <div class="title"><h2>Novo Cliente</h2></div>
+          <div class="btn-store">
+            <button id="salvar" class="btn">Salvar</button>
+            <button id="cancelar" class="btn">Cancelar</button>
+          </div>
+        </div>
+        <div class="modal">
+          <div class="modal-content">
+            <div class="row">
+              <span>Nome</span>
+              <input type="text" id="nome" />
+            </div>
+            <div class="row">
+              <span>Cidade</span>
+              <input type="text" id="cidade" />
+            </div>
+            <div class="row">
+              <span>Estado</span>
+              <input type="text" id="estado" />
+            </div>
+            <div class="row">
+              <span>Endereço</span>
+              <input type="text" id="endereço" />
+            </div>
+            <div class="row">
+              <span>CPF</span>
+              <input type="text" id="cpf" />
+            </div>
+            <div class="row">
+              <span>Ativo</span>
+              <select id="ativo">
+                <option value="true">Sim</option>
+                <option value="false">Não</option>
+              </select>
+            </div>
+          </div>
+        </div>
         <div class="table-container">
           <div class="table">
             <div class="table-head" id="list_index">
@@ -43,7 +94,11 @@
         </div>
       </div>
       <div class="row-pagination">
-        <ul id="button_pages"></ul>
+        <div id="button_pages">
+          <button id="navegation-previous" class="action page-key"><i class="material-icons">keyboard_arrow_left</i></button>
+          <div id="pagination-numbers"></div>
+          <button id="navegation-next" class="action page-key"><i class="material-icons">keyboard_arrow_right</i></button>
+        </div>
       </div>
     </div>
     <script src="js/renderer.js"></script>

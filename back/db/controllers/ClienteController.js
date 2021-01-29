@@ -1,7 +1,8 @@
+const { Op } = require("sequelize");
 const Cliente = require("../models/cliente");
 
 module.exports = {
-  async find(req, res) {
+  async show(req, res) {
     try {
       const cliente = await Cliente.findByPk(req.params.id);
       return res.json(cliente);
@@ -10,11 +11,13 @@ module.exports = {
     }
   },
 
-  async show(req, res) {
+  async index(req, res) {
     try {
-      const { offset, limit } = req.query;
-      const cliente = await Cliente.findAndCountAll({ order: [["id", "ASC"]], offset, limit });
-      console.log(offset);
+      const { chave, value, pagina, limit, ativo } = req.query;
+      let offset = (pagina - 1) * limit;
+      let a = {};
+      a[chave] = { [Op.like]: `%${value}%` };
+      const cliente = await Cliente.findAndCountAll({ where: { ...a, ativo }, order: [["id", "ASC"]], offset, limit });
       return res.json(cliente);
     } catch (err) {
       console.log(err);
@@ -23,8 +26,9 @@ module.exports = {
 
   async store(req, res) {
     try {
-      const { nome, cidade, estado, endereço, cpf } = req.body;
-      const cliente = await Cliente.create({ nome, cidade, estado, endereço, cpf });
+      const { data } = req.body;
+      // const { nome, ...resto } = data;
+      const cliente = await Cliente.create({ ...data });
       return res.json(cliente);
     } catch (err) {
       console.log(err);
@@ -33,10 +37,10 @@ module.exports = {
 
   async update(req, res) {
     try {
-      const { nome, cidade, estado, endereço, cpf } = req.body;
+      const { data } = req.body;
       const cliente = await Cliente.findByPk(req.params.id);
       if (cliente) {
-        return res.json(await cliente.update({ nome, cidade, estado, endereço, cpf }));
+        return res.json(await cliente.update({ ...data }));
       } else {
         console.log(cliente);
       }
