@@ -12,7 +12,7 @@ function createWindow() {
     width: 1200,
     height: 800,
     show: false,
-    frame: false,
+    frame: true,
     webPreferences: {
       nodeIntegration: true,
       enableRemoteModule: true,
@@ -77,25 +77,25 @@ ipcMain.on("updateTableModal", (event, args) => {
 //   console.log(id);
 // });
 
-ipcMain.handle("createModal", async (event, id) => {
-  let win = new BrowserWindow({
-    // width: 800,
-    // height: 400,
-    parent: winPrincipal,
-    modal: true,
-    show: false,
-    frame: false,
-    webPreferences: {
-      nodeIntegration: true,
-      enableRemoteModule: true,
-    },
-    id_user: id,
-  });
-  var theUrl = "file://" + __dirname + "/src/modal.html";
-  win.loadURL(theUrl);
-  if (process.env.ENVIRONMENT == "development") {
-    win.webContents.openDevTools();
-  }
-  win.show();
-  win.maximize();
-});
+// ipcMain.handle("createModal", async (event, id) => {
+//   let win = new BrowserWindow({
+//     // width: 800,
+//     // height: 400,
+//     parent: winPrincipal,
+//     modal: true,
+//     show: false,
+//     frame: true,
+//     webPreferences: {
+//       nodeIntegration: true,
+//       enableRemoteModule: true,
+//     },
+//     id_user: id,
+//   });
+//   var theUrl = "file://" + __dirname + "/src/modal.html";
+//   win.loadURL(theUrl);
+//   if (process.env.ENVIRONMENT == "development") {
+//     win.webContents.openDevTools();
+//   }
+//   win.show();
+//   win.maximize();
+// });

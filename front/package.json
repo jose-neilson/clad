@@ -9,7 +9,7 @@
   "dependencies": {
     "axios": "^0.21.1",
     "dotenv": "^8.2.0",
-    "electron": "^11.2.0",
+    "electron": "^11.2.2",
     "jquery": "^3.5.1"
   }
 }

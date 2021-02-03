@@ -1,4 +1,4 @@
-const { Op } = require("sequelize");
+const { Op, fn } = require("sequelize");
 const Cliente = require("../models/cliente");
 
 module.exports = {
@@ -29,6 +29,7 @@ module.exports = {
       const { data } = req.body;
       // const { nome, ...resto } = data;
       const cliente = await Cliente.create({ ...data });
+      console.log(cliente);
       return res.json(cliente);
     } catch (err) {
       console.log(err);

@@ -1,3 +1,4 @@
+const { fn } = require("sequelize/types");
 const User = require("../models/user");
 
 module.exports = {
@@ -22,7 +23,8 @@ module.exports = {
   async store(req, res) {
     try {
       const { name, email, telephone } = req.body;
-      const user = await User.create({ name, email, telephone });
+
+      const user = await User.create(fn("upper", { name, email, telephone }));
       return res.json(user);
     } catch (err) {
       console.log(err);
@@ -34,7 +36,7 @@ module.exports = {
       const user = await User.findByPk(req.params.id);
       const { name, email, telephone } = req.body;
       if (user) {
-        return res.json(await user.update({ name, email, telephone }));
+        return res.json(await user.update(fn("upper", { name, email, telephone })));
       } else {
         console.log(user);
       }
