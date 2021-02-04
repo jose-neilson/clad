@@ -6,11 +6,32 @@ class Cliente extends Sequelize.Model {}
 
 Cliente.init(
   {
-    nome: DataTypes.STRING,
-    cidade: DataTypes.STRING,
-    estado: DataTypes.STRING,
-    endereço: DataTypes.STRING,
-    cpf: DataTypes.STRING,
+    nome: {
+      type: DataTypes.STRING(100),
+      set(value) {
+        const nome = value.replace(/[0-9]/g, "");
+        this.setDataValue("nome", nome);
+      },
+    },
+    cpf: {
+      type: DataTypes.STRING(11),
+      set(value) {
+        const cpf = value.replace(".", "").replace(".", "").replace("-", "");
+        this.setDataValue("cpf", cpf);
+      },
+    },
+    cep: {
+      type: DataTypes.STRING(8),
+      set(value) {
+        const cep = value.replace("-", "");
+        this.setDataValue("cep", cep);
+      },
+    },
+    data_nasc: DataTypes.DATE(),
+    uf: DataTypes.CHAR(2),
+    cidade: DataTypes.STRING(40),
+    bairro: DataTypes.STRING(30),
+    endereço: DataTypes.STRING(80),
     ativo: DataTypes.BOOLEAN,
   },
   {

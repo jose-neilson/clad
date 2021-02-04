@@ -2,6 +2,7 @@ const limit = 10;
 const { default: axios } = require("axios");
 const { ipcRenderer, remote } = require("electron");
 const $ = require("jquery");
+require("jquery-mask-plugin");
 
 const dialog = remote.dialog;
 let page_num;
@@ -36,6 +37,36 @@ async function searchValues(chave, value, pagina, ativo) {
   const result = await ipcRenderer.invoke("indexClientes", params);
   indexClientes(result.rows);
   showPages(result.count, pagina);
+}
+
+// Função de mostrar os dados na tabela
+
+function indexClientes(result) {
+  try {
+    let html = "";
+    for (let index = 0; index < result.length; index++) {
+      const element = result[index];
+      html += `
+        <ul>
+        <li class="col1 center">${element.id}</li>
+        <li class="col3 left truncate">${element.nome}</li>
+        <li class="col2 center">${element.cpf}</li>
+        <li class="col3 left">${element.data_nasc}</li>
+        <li class="col1 center">${element.cep}</li>
+        <li class="col1 center">${element.uf}</li>
+        <li class="col2 center truncate">${element.cidade}</li>
+        <li class="col2 center">${element.bairro}</li>
+        <li class="col2 left">${element.endereço}</li>
+          <li class='menu-action'>
+            <button data-id="${element.id}" class="action edit"><i class="material-icons">edit</i></button>
+            <button data-id="${element.id}" class="action delete"><i class="material-icons">delete</i></button>
+          </li>
+        </ul>`;
+    }
+    $("#list").html(html);
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 // Função de fazer a paginação
@@ -91,34 +122,6 @@ $(document).on("click", ".page-number", (event) => {
   searchValues(chave, value, index, ativo);
 });
 
-// Função de mostrar os dados na tabela
-
-function indexClientes(result) {
-  try {
-    let html = "";
-    for (let index = 0; index < result.length; index++) {
-      const element = result[index];
-      html += `
-        <ul>
-          <li class="col1 center">${element.id}</li>
-          <li class="col3 left">  ${element.nome}</li>
-          <li class="col1 center">${element.estado}</li>
-          <li class="col3 center">${element.cidade}</li>
-          <li class="col2 left">${element.endereço}</li>
-          <li class="col2 center">${element.cpf}</li>
-          <li class='menu-action'>
-            <button class="action"><i class="material-icons">visibility</i></button>
-            <button data-id="${element.id}" class="action edit"><i class="material-icons">edit</i></button>
-            <button data-id="${element.id}" class="action delete"><i class="material-icons">delete</i></button>
-          </li>
-        </ul>`;
-    }
-    $("#list").html(html);
-  } catch (err) {
-    console.log(err);
-  }
-}
-
 //Atualizar a tabela
 
 ipcRenderer.on("updateTable", (event, args) => {
@@ -134,7 +137,7 @@ $(document).on("click", ".edit", async (event) => {
   let dados = await searchCliente(id);
   showCliente(dados);
 
-  let id_uf = await indexEstados(dados.estado);
+  let id_uf = await indexEstados(dados.uf);
   indexCidades(id_uf, dados.cidade);
   $(".content").removeClass("content-in");
   $(".modal").removeClass("modal-out");
@@ -182,13 +185,21 @@ $("#register").on("click", async () => {
   $(".modal").removeClass("modal-out");
   $(".modal").addClass("modal-in");
 
+  let cpf = $("#cpf");
+  let cep = $("#cep");
+
+  cpf.mask("000.000.000-00");
+  cep.mask("00000-000");
+  cpf.val("");
+  cep.val("");
   $("#id_user").val("");
   $("#nome").val("");
+  $("#data-nasc").val("");
+  $("#bairro").val("");
   $("#endereço").val("");
-  $("#cpf").val("");
 
-  let uf = await indexEstados();
-  indexCidades(uf);
+  let cod_uf = await indexEstados();
+  indexCidades(cod_uf);
 });
 
 //Funções do modal
@@ -198,20 +209,23 @@ $("#cancelar").on("click", () => {
   $(".content").addClass("content-in");
   $(".modal").removeClass("modal-in");
   $(".modal").addClass("modal-out");
-  // window.setTimeout(() => {
-  //   $(".content").removeClass("hide");
-  //   $(".content").addClass("active");
-  //   $(".modal").addClass("hide");
-  //   $(".modal").removeClass("active");
-  // }, 300);
 });
 
 $("#salvar").on("click", () => {
+  let data = getCampos();
+  let campos = Object.values(data);
+  for (let index = 0; index < campos.length; index++) {
+    const element = campos[index];
+    if (element == "") {
+      return alert("Algum dos campos está vazio");
+    }
+  }
+
   let id = $("#id_user").val();
   if (id) {
-    updateCliente(id);
+    updateCliente(id, data);
   } else {
-    createCliente();
+    createCliente(data);
   }
   $(".content").removeClass("content-out");
   $(".content").addClass("content-in");
@@ -226,24 +240,62 @@ $("#estado").on("change", (event) => {
   indexCidades(uf);
 });
 
+$("#cep").on("blur", async (event) => {
+  let cep = $("#cep").cleanVal();
+  if (cep != "") {
+    const result = await axios.get(`https://viacep.com.br/ws/${cep}/json/`);
+    const element = result.data;
+    if (!("erro" in element)) {
+      console.log(element);
+      $("#bairro").val(element.bairro);
+      let uf = await indexEstados(element.uf);
+      indexCidades(uf, element.localidade);
+      $("#endereço").val(element.logradouro);
+    } else {
+      $("#cep").val("");
+      $("#cidade").val("");
+      $("#estado").val("");
+      $("#bairro").val("");
+      alert("CEP não encontrado");
+      console.log("CEP não encontrado");
+    }
+  } else {
+    console.log("CEP vazio");
+  }
+});
+
+function getCampos() {
+  let nome = $("#nome").val();
+  let data_nasc = $("#data-nasc").val();
+  let cidade = $("#cidade").val();
+  let cep = $("#cep").cleanVal();
+  let bairro = $("#bairro").val();
+  let uf = $("#estado").val();
+  let endereço = $("#endereço").val();
+  let numero_rua = $("#numero_rua").val();
+  let complemento = $("#complemento").val();
+  let cpf = $("#cpf").cleanVal();
+  let ativo = $("#ativo").val();
+  let data = {
+    nome,
+    cpf,
+    data_nasc,
+    cep,
+    uf,
+    cidade,
+    bairro,
+    endereço,
+    numero_rua,
+    complemento,
+    ativo,
+  };
+  return data;
+}
+
 //funções de criar e atualizar
 
-async function createCliente() {
+async function createCliente(data) {
   try {
-    let nome = $("#nome").val();
-    let cidade = $("#cidade").val();
-    let estado = $("#estado").val();
-    let endereço = $("#endereço").val();
-    let cpf = $("#cpf").val();
-    let ativo = $("#ativo").val();
-    let data = {
-      nome,
-      cidade,
-      estado,
-      endereço,
-      cpf,
-      ativo,
-    };
     const result = await ipcRenderer.invoke("createCliente", data);
     dialog.showMessageBox({
       buttons: ["Ok"],
@@ -255,24 +307,9 @@ async function createCliente() {
   }
 }
 
-async function updateCliente() {
+async function updateCliente(id, data) {
   try {
-    let id_user = $("#id_user").val();
-    let nome = $("#nome").val();
-    let estado = $("#estado").val();
-    let cidade = $("#cidade").val();
-    let endereço = $("#endereço").val();
-    let cpf = $("#cpf").val();
-    let ativo = $("#ativo").val();
-    var data = {
-      nome,
-      cidade,
-      estado,
-      endereço,
-      cpf,
-      ativo,
-    };
-    const result = await ipcRenderer.invoke("updateCliente", parseInt(id_user), data);
+    const result = await ipcRenderer.invoke("updateCliente", parseInt(id), data);
     dialog.showMessageBox({
       buttons: ["Ok"],
       message: "Usuário atualizado com sucesso",
@@ -297,10 +334,20 @@ async function searchCliente(id_user) {
 //coloca os dados nos campos
 
 async function showCliente(dados) {
+  let cep = $("#cep");
+  let cpf = $("#cpf");
+  cpf.mask("000.000.000-00");
+  cep.mask("00000-000");
+  cpf.val(dados.cpf).trigger("input");
+  cep.val(dados.cep).trigger("input");
+
   $("#id_user").val(dados.id);
   $("#nome").val(dados.nome);
+  $("#data-nasc").val(dados.data_nasc);
+  $("#bairro").val(dados.bairro);
   $("#endereço").val(dados.endereço);
-  $("#cpf").val(dados.cpf);
+  $("#numero_rua").val(dados.numero_rua);
+  $("complemento").val(dados.complemento);
   $("#ativo").val(`${dados.ativo}`);
 }
 
@@ -315,7 +362,9 @@ async function indexEstados(estado) {
     lista += `<option data-uf="${uf.id}" value="${uf.sigla}">${uf.nome}</option>`;
   }
   $("#estado").html(lista);
-  if (estado) $("#estado").val(estado);
+  if (estado) {
+    $("#estado").val(estado);
+  }
   return $("#estado option:selected").attr("data-uf");
 }
 

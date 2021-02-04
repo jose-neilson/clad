@@ -27,8 +27,8 @@ module.exports = {
   async store(req, res) {
     try {
       const { data } = req.body;
-      // const { nome, ...resto } = data;
-      const cliente = await Cliente.create({ ...data });
+      const { id, ...resto } = data;
+      const cliente = await Cliente.create({ ...resto });
       console.log(cliente);
       return res.json(cliente);
     } catch (err) {
@@ -39,9 +39,10 @@ module.exports = {
   async update(req, res) {
     try {
       const { data } = req.body;
+      const { id, ...resto } = data;
       const cliente = await Cliente.findByPk(req.params.id);
       if (cliente) {
-        return res.json(await cliente.update({ ...data }));
+        return res.json(await cliente.update({ ...resto }));
       } else {
         console.log(cliente);
       }

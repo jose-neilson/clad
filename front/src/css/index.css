@@ -14,6 +14,10 @@ ul {
   list-style: none;
 }
 
+.unable {
+  display: none;
+}
+
 .suave {
   transition-duration: 0.3s;
   -webkit-transition-duration: 0.3s;
@@ -314,10 +318,10 @@ li.col3 {
 }
 
 li.center {
-  text-align: center;
+  text-align: center !important;
 }
 li.left {
-  text-align: left;
+  text-align: left !important;
 }
 li.truncate {
   white-space: nowrap;
@@ -332,6 +336,10 @@ li.truncate {
   right: 0;
   background: #fff;
   box-shadow: -1px 0 2px 0 rgb(0 0 0 / 25%);
+}
+
+.menu-action button {
+  margin: 0 0.3em;
 }
 
 .action {
@@ -481,8 +489,12 @@ li.truncate {
   min-height: 1px;
 }
 
+.row .col.s1 {
+  width: 10%;
+}
+
 .row .col.s2 {
-  width: 16.6%;
+  width: 17%;
 }
 
 .row .col.s3 {

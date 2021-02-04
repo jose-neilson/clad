@@ -41,6 +41,7 @@ ipcMain.handle("showCliente", async (event, id) => {
 });
 
 ipcMain.handle("createCliente", async (event, data) => {
+  console.log(data);
   const result = await axios.post(`${BASE_URL}${ROUTE}`, { data });
   return result.data;
 });
@@ -60,42 +61,3 @@ ipcMain.handle("deleteCliente", async (event, id) => {
 ipcMain.on("updateTableModal", (event, args) => {
   winPrincipal.webContents.send("updateTable", args);
 });
-
-// ipcMain.handle("createModal", async (event, id) => {
-//   let win = new BrowserWindow({
-//     width: 800,
-//     height: 500,
-//     frame: false,
-//     blur: true,
-//     webPreferences: {
-//       nodeIntegration: true,
-//       enableRemoteModule: true,
-//     },
-//   });
-//   var theUrl = "file://" + __dirname + "/src/modal.html";
-//   win.loadURL(theUrl);
-//   console.log(id);
-// });
-
-// ipcMain.handle("createModal", async (event, id) => {
-//   let win = new BrowserWindow({
-//     // width: 800,
-//     // height: 400,
-//     parent: winPrincipal,
-//     modal: true,
-//     show: false,
-//     frame: true,
-//     webPreferences: {
-//       nodeIntegration: true,
-//       enableRemoteModule: true,
-//     },
-//     id_user: id,
-//   });
-//   var theUrl = "file://" + __dirname + "/src/modal.html";
-//   win.loadURL(theUrl);
-//   if (process.env.ENVIRONMENT == "development") {
-//     win.webContents.openDevTools();
-//   }
-//   win.show();
-//   win.maximize();
-// });
