@@ -32,6 +32,8 @@ Cliente.init(
     cidade: DataTypes.STRING(40),
     bairro: DataTypes.STRING(30),
     endereço: DataTypes.STRING(80),
+    numero_rua: DataTypes.STRING(6),
+    complemento: DataTypes.STRING(20),
     ativo: DataTypes.BOOLEAN,
   },
   {

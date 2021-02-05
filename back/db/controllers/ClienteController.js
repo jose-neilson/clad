@@ -28,6 +28,7 @@ module.exports = {
     try {
       const { data } = req.body;
       const { id, ...resto } = data;
+      console.log({ ...resto });
       const cliente = await Cliente.create({ ...resto });
       console.log(cliente);
       return res.json(cliente);
@@ -40,6 +41,7 @@ module.exports = {
     try {
       const { data } = req.body;
       const { id, ...resto } = data;
+      console.log({ ...resto });
       const cliente = await Cliente.findByPk(req.params.id);
       if (cliente) {
         return res.json(await cliente.update({ ...resto }));

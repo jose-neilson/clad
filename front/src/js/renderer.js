@@ -165,16 +165,36 @@ $(document).on("click", ".delete", async (event) => {
   }
 });
 
-// Botões de ativo e desativo
+// Botões de tab
 
 $(".btn-tab").on("click", (event) => {
-  $(".btn-tab").removeClass("btn-active");
-  $(event.currentTarget).addClass("btn-active");
-  $(event.currentTarget).addClass("tab-active");
-  ativo = $(event.currentTarget).attr("data-active");
-  chave = $("#selection option:selected").val();
-  value = $("#search_value").val();
-  searchValues(chave, value, 1, ativo);
+  if ($(event.currentTarget).hasClass("btn-content")) {
+    console.log("entrou no if de content");
+    $(".btn-content").removeClass("btn-active");
+    $(event.currentTarget).addClass("btn-active");
+    $(event.currentTarget).addClass("tab-active");
+    ativo = $(event.currentTarget).attr("data-active");
+    chave = $("#selection option:selected").val();
+    value = $("#search_value").val();
+    searchValues(chave, value, 1, ativo);
+  } else if ($(event.currentTarget).hasClass("btn-modal")) {
+    console.log("entrou no if de modal");
+    $(".btn-modal").removeClass("btn-active");
+    $(event.currentTarget).addClass("btn-active");
+    let div_tab = $(event.currentTarget).attr("data-tab");
+    console.log(div_tab);
+    console.log($(`.${div_tab}`).hasClass(div_tab));
+
+    if (!$(".active").hasClass(div_tab)) {
+      console.log(div_tab);
+      $(".forms").removeClass(["hide", "active"]);
+      $(".forms").addClass("hide");
+      $(`.${div_tab}`).removeClass("hide");
+      $(`.${div_tab}`).addClass("active");
+    } else {
+      console.log("possue mesma classe");
+    }
+  }
 });
 
 // Criar modal
@@ -185,18 +205,10 @@ $("#register").on("click", async () => {
   $(".modal").removeClass("modal-out");
   $(".modal").addClass("modal-in");
 
-  let cpf = $("#cpf");
-  let cep = $("#cep");
+  $("#cpf").mask("000.000.000-00");
+  $("#cep").mask("00000-000");
 
-  cpf.mask("000.000.000-00");
-  cep.mask("00000-000");
-  cpf.val("");
-  cep.val("");
-  $("#id_user").val("");
-  $("#nome").val("");
-  $("#data-nasc").val("");
-  $("#bairro").val("");
-  $("#endereço").val("");
+  limparCampos();
 
   let cod_uf = await indexEstados();
   indexCidades(cod_uf);
@@ -213,24 +225,18 @@ $("#cancelar").on("click", () => {
 
 $("#salvar").on("click", () => {
   let data = getCampos();
-  let campos = Object.values(data);
-  for (let index = 0; index < campos.length; index++) {
-    const element = campos[index];
-    if (element == "") {
-      return alert("Algum dos campos está vazio");
-    }
+  if (data) {
+    // let id = $("#id_user").val();
+    // if (id) {
+    //   updateCliente(id, data);
+    // } else {
+    //   createCliente(data);
+    // }
+    // $(".content").removeClass("content-out");
+    // $(".content").addClass("content-in");
+    // $(".modal").removeClass("modal-in");
+    // $(".modal").addClass("modal-out");
   }
-
-  let id = $("#id_user").val();
-  if (id) {
-    updateCliente(id, data);
-  } else {
-    createCliente(data);
-  }
-  $(".content").removeClass("content-out");
-  $(".content").addClass("content-in");
-  $(".modal").removeClass("modal-in");
-  $(".modal").addClass("modal-out");
 });
 
 //função do select do estado
@@ -265,31 +271,37 @@ $("#cep").on("blur", async (event) => {
 });
 
 function getCampos() {
-  let nome = $("#nome").val();
-  let data_nasc = $("#data-nasc").val();
-  let cidade = $("#cidade").val();
-  let cep = $("#cep").cleanVal();
-  let bairro = $("#bairro").val();
-  let uf = $("#estado").val();
-  let endereço = $("#endereço").val();
-  let numero_rua = $("#numero_rua").val();
-  let complemento = $("#complemento").val();
-  let cpf = $("#cpf").cleanVal();
-  let ativo = $("#ativo").val();
-  let data = {
-    nome,
-    cpf,
-    data_nasc,
-    cep,
-    uf,
-    cidade,
-    bairro,
-    endereço,
-    numero_rua,
-    complemento,
-    ativo,
-  };
+  let data = {};
+  let form = new FormData(document.getElementById("formulario"));
+  let vazios = "";
+  for (let index of form.entries()) {
+    if (index[1] == "") {
+      return alert(`Campos: ${index[0]} está vazio`);
+    }
+    console.log(index[0]);
+    console.log(index[1]);
+  }
+  form.forEach((v, k) => {
+    data[k] = v;
+  });
+  console.log(data);
   return data;
+}
+
+function limparCampos() {
+  $("#id_user").val("");
+  $("#nome").val("");
+  $("#data-nasc").val("");
+  document.querySelector("#data-nasc").valueAsDate = new Date();
+  $("#cidade").val();
+  $("#cep").val("");
+  $("#bairro").val("");
+  $("#estado").val("");
+  $("#endereço").val("");
+  $("#numero_rua").val("");
+  $("#complemento").val("");
+  $("#cpf").val("");
+  $("#ativo").val("true");
 }
 
 //funções de criar e atualizar
